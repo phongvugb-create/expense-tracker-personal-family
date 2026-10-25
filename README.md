@@ -152,7 +152,10 @@ docker compose ps
 * **Grafana Dashboard**: `http://127.0.0.1:3000`
   * **Tài khoản**: `admin` / Mật khẩu lấy từ `GRAFANA_ADMIN_PASSWORD` trong `.env`.
   * **Datasources (Provisioned)**: Prometheus (`http://prometheus:9090`) và Loki (`http://loki:3100`).
-  * **Dashboard dựng sẵn**: *Expense Tracker — PostgreSQL, Backend, Nginx & Loki Metrics* (UID: `expense-tracker-db-metrics`).
+  * **Dashboards dựng sẵn**:
+    1. *Expense Tracker — System Monitoring Dashboard* (UID: `expense-tracker-system-overview`): Bố cục tổng quan chuẩn mẫu bao gồm Container count, Backend/DB/Nginx status, RAM & CPU cAdvisor charts, FastAPI request rate & latency, Blackbox probe health, DB & Nginx metrics và nhật ký Loki.
+    2. *Expense Tracker — PostgreSQL, Backend, Nginx & Loki Metrics* (UID: `expense-tracker-db-metrics`): Bảng điều khiển chi tiết cơ sở dữ liệu và hệ thống.
+* **cAdvisor (Container Monitoring)**: `http://127.0.0.1:9080` (Metrics: `http://cadvisor:8080/metrics`).
 * **Prometheus Web UI**: `http://127.0.0.1:9090`
   * Kiểm tra targets cào số liệu tại: `http://127.0.0.1:9090/targets` (tất cả targets đều `UP`).
 * **Grafana Loki (Log Ingestion & Query)**: `http://127.0.0.1:3100` (Kiểm tra ready: `http://127.0.0.1:3100/ready`).
