@@ -132,3 +132,45 @@ npm run lint
    * Hệ thống tập trung tối ưu hóa **In-App Notification Center** (thông báo nội bộ trong ứng dụng qua chuông thông báo, badge đếm tin chưa đọc, modal chi tiết và điều hướng tác vụ).
    * Các kênh thông báo bên ngoài như Email SMTP thực tế hoặc Web Push Notification hiện tại đang ở dạng demo/preview cấu trúc token, sẵn sàng mở rộng khi tích hợp dịch vụ bên thứ ba.
 
+---
+
+## 7. Hệ Thống Giám Sát (Monitoring & Observability)
+
+Dự án tích hợp sẵn hệ thống giám sát thời gian thực với **Prometheus**, **Grafana** và **PostgreSQL Exporter** chạy hoàn toàn trên Docker Compose:
+
+### 7.1. Khởi động các dịch vụ giám sát
+```powershell
+docker compose up -d postgres-exporter prometheus grafana
+```
+
+Kiểm tra trạng thái các container:
+```powershell
+docker compose ps
+```
+
+### 7.2. Truy cập & Thông tin đăng nhập
+* **Prometheus Web UI**: `http://127.0.0.1:9090`
+  * Kiểm tra targets đang cào dữ liệu: `http://127.0.0.1:9090/targets` (cả `prometheus` và `postgres-exporter` ở trạng thái **UP**).
+* **Grafana Dashboard**: `http://127.0.0.1:3000`
+  * **Tài khoản mặc định**: `admin`
+  * **Mật khẩu**: Lấy từ biến môi trường `GRAFANA_ADMIN_PASSWORD` trong file `.env` (mặc định mẫu: `example_grafana_password_replace_in_env`).
+  * **Datasource tự động (Provisioned)**: Prometheus (`http://prometheus:9090`).
+  * **Dashboard dựng sẵn**: *Expense Tracker — PostgreSQL & System Metrics* (UID: `expense-tracker-db-metrics`), bao gồm:
+    * Trạng thái kết nối PostgreSQL (`pg_up`).
+    * Số lượng kết nối hoạt động và phân bổ theo trạng thái (`pg_stat_activity_count`).
+    * Tốc độ giao dịch Commit / Rollback (`pg_stat_database_xact_commit`, `pg_stat_database_xact_rollback`).
+    * Dung lượng database `expense_tracker` theo thời gian (`pg_database_size_bytes`).
+    * Thời gian hoạt động liên tục (Uptime) của PostgreSQL Server.
+* **pgAdmin 4**: `http://127.0.0.1:5050`
+  * Đăng nhập với `PGADMIN_DEFAULT_EMAIL` và `PGADMIN_DEFAULT_PASSWORD` từ `.env`.
+
+### 7.3. Xử lý sự cố thường gặp (Troubleshooting)
+1. **Target `postgres-exporter` hiển thị DOWN trong Prometheus**:
+   * Kiểm tra container PostgreSQL có đang chạy và healthy không: `docker compose ps db`.
+   * Kiểm tra log của exporter: `docker compose logs postgres-exporter --tail 50`.
+   * Đảm bảo chuỗi kết nối sử dụng hostname nội bộ `db:5432`, không dùng `localhost` hay IP host.
+2. **Grafana không hiển thị biểu đồ hoặc báo lỗi kết nối datasource**:
+   * Kiểm tra mạng Docker `app-network` có thông suốt giữa Grafana và Prometheus không.
+   * Kiểm tra log Grafana: `docker compose logs grafana --tail 50`.
+   * Thử test query trực tiếp trên Prometheus: `http://127.0.0.1:9090/graph?g0.expr=pg_up`.
+
