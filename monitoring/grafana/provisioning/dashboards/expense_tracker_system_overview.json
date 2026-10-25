@@ -35,7 +35,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Tổng số container/cgroups được theo dõi thời gian thực bởi cAdvisor",
+      "description": "Số lượng dịch vụ/targets đang được giám sát thời gian thực ở trạng thái UP trong Prometheus",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -83,13 +83,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(count(container_last_seen) by (id))",
+          "expr": "count(up == 1)",
           "instant": true,
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Monitored Containers (cAdvisor)",
+      "title": "Active Targets (Prometheus UP)",
       "type": "stat"
     },
     {
@@ -344,7 +344,7 @@
         "y": 5
       },
       "id": 101,
-      "title": "Container Resources (cAdvisor)",
+      "title": "Docker Host & Engine Resources (cAdvisor)",
       "type": "row"
     },
     {
@@ -352,7 +352,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Dung lượng RAM thực tế sử dụng (Working Set) theo container/cgroup (đơn vị MiB)",
+      "description": "Dung lượng RAM thực tế sử dụng (Working Set) theo cgroup phân cấp: Toàn bộ Docker Engine (/docker), Hệ thống Desktop (/restricted) và WSL2 Host Root (/). Đã loại trừ các cgroup rỗng.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -405,13 +405,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "container_memory_working_set_bytes{id=~\"/docker.*|/restricted\"}",
-          "legendFormat": "{{id}}",
+          "expr": "label_replace(label_replace(label_replace(container_memory_working_set_bytes{id=~\"^/$\|^/docker$\|^/restricted$\"}, \"scope\", \"Docker Containers Total\", \"id\", \"/docker\"), \"scope\", \"WSL2 Docker VM (Root)\", \"id\", \"/\"), \"scope\", \"System Daemons\", \"id\", \"/restricted\")",
+          "legendFormat": "{{scope}} ({{id}})",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Container RAM Usage (Working Set)",
+      "title": "Engine & VM Memory Usage (Working Set)",
       "type": "timeseries"
     },
     {
@@ -419,7 +419,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Tỷ lệ sử dụng CPU theo container/cgroup theo thời gian",
+      "description": "Tỷ lệ sử dụng CPU theo phân cấp cgroups cAdvisor: Toàn bộ Docker Engine, System Daemons và VM Root. Đã loại trừ các cgroup rỗng.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -472,13 +472,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (id) (rate(container_cpu_usage_seconds_total{id=~\"/docker.*|/restricted\"}[1m]))",
-          "legendFormat": "{{id}}",
+          "expr": "label_replace(label_replace(label_replace(sum by (id) (rate(container_cpu_usage_seconds_total{id=~\"^/$\|^/docker$\|^/restricted$\"}[1m])), \"scope\", \"Docker Containers Total\", \"id\", \"/docker\"), \"scope\", \"WSL2 Docker VM (Root)\", \"id\", \"/\"), \"scope\", \"System Daemons\", \"id\", \"/restricted\")",
+          "legendFormat": "{{scope}} ({{id}})",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Container CPU Usage Over Time",
+      "title": "Engine & VM CPU Usage Over Time",
       "type": "timeseries"
     },
     {
@@ -1108,6 +1108,6 @@
   "timezone": "browser",
   "title": "Expense Tracker — System Monitoring Dashboard",
   "uid": "expense-tracker-system-overview",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
