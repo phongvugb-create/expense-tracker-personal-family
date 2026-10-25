@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 import logging
 from typing import Annotated
 
@@ -16,13 +17,26 @@ from app.api.v1 import api_v1_router
 from app.core.config import settings
 from app.db.session import get_db
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
 logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Expense Tracker API backend initialized successfully. System status: 0 error detected.")
+    yield
+    logger.info("Expense Tracker API backend shutting down.")
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Cấu hình Prometheus metrics exporter
@@ -82,3 +96,9 @@ async def health_ready(db: Annotated[Session, Depends(get_db)]):
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             content={"status": "error", "database": "unavailable"},
         )
+
+
+@app.get("/health/test-error", tags=["Health"], include_in_schema=False)
+async def health_test_error() -> dict[str, str]:
+    logger.warning("Diagnostic verification probe: harmless test error recorded for Loki")
+    return {"status": "ok", "message": "Harmless test error logged for Loki"}

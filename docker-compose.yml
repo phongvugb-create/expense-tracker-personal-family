@@ -1,6 +1,27 @@
 # Docker Compose - Cấu hình hạ tầng & Giám sát toàn diện (Expense Tracker)
 
 services:
+  backend:
+    build:
+      context: ./backend
+    container_name: expense_tracker_backend
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-expense_tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-expense_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      ENVIRONMENT: development
+      DEBUG: "true"
+    ports:
+      - "127.0.0.1:8001:8000"
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:18
     container_name: expense_tracker_db
