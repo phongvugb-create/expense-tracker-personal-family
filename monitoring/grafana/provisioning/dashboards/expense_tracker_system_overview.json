@@ -19,18 +19,6 @@
   "liveNow": false,
   "panels": [
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 100,
-      "title": "System & Container Status",
-      "type": "row"
-    },
-    {
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
@@ -56,16 +44,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
-        "w": 6,
+        "h": 7,
+        "w": 4,
         "x": 0,
-        "y": 1
+        "y": 0
       },
       "id": 1,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -114,7 +102,7 @@
                 "1": {
                   "color": "green",
                   "index": 0,
-                  "text": "UP"
+                  "text": "UP (200)"
                 }
               },
               "type": "value"
@@ -137,16 +125,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 1
+        "h": 7,
+        "w": 4,
+        "x": 4,
+        "y": 0
       },
       "id": 2,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -178,181 +166,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Trạng thái kết nối PostgreSQL 18 từ Exporter",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "index": 1,
-                  "text": "DOWN"
-                },
-                "1": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "UP"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 1
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "pg_up",
-          "instant": true,
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "PostgreSQL 18 Status",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "Trạng thái Nginx Reverse Proxy qua Exporter",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "index": 1,
-                  "text": "DOWN"
-                },
-                "1": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "UP"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 1
-      },
-      "id": 4,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "nginx_up",
-          "instant": true,
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Nginx Status",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 5
-      },
-      "id": 101,
-      "title": "Docker Host & Engine Resources (cAdvisor)",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "Dung lượng RAM thực tế sử dụng (Working Set) theo cgroup phân cấp: Toàn bộ Docker Engine (/docker), Hệ thống Desktop (/restricted) và WSL2 Host Root (/). Đã loại trừ các cgroup rỗng.",
+      "description": "Dung lượng RAM thực tế sử dụng (Working Set) theo cgroup phân cấp cAdvisor: Toàn bộ Docker Engine (/docker), Hệ thống Desktop (/restricted) và WSL2 Host Root (/).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -377,12 +191,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 6
+        "h": 7,
+        "w": 16,
+        "x": 8,
+        "y": 0
       },
-      "id": 5,
+      "id": 3,
       "options": {
         "legend": {
           "calcs": [
@@ -390,7 +204,7 @@
             "max"
           ],
           "displayMode": "table",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true
         },
         "tooltip": {
@@ -405,13 +219,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "label_replace(label_replace(label_replace(container_memory_working_set_bytes{id=~\"^/$\|^/docker$\|^/restricted$\"}, \"scope\", \"Docker Containers Total\", \"id\", \"/docker\"), \"scope\", \"WSL2 Docker VM (Root)\", \"id\", \"/\"), \"scope\", \"System Daemons\", \"id\", \"/restricted\")",
-          "legendFormat": "{{scope}} ({{id}})",
+          "expr": "label_replace(label_replace(label_replace(container_memory_working_set_bytes{id=~\"^/$|^/docker$|^/restricted$\"}, \"scope\", \"Docker Containers Total\", \"id\", \"/docker\"), \"scope\", \"WSL2 Docker VM (Root)\", \"id\", \"/\"), \"scope\", \"System Daemons\", \"id\", \"/restricted\")",
+          "legendFormat": "{{scope}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Engine & VM Memory Usage (Working Set)",
+      "title": "Container RAM Usage (Working Set)",
       "type": "timeseries"
     },
     {
@@ -419,7 +233,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Tỷ lệ sử dụng CPU theo phân cấp cgroups cAdvisor: Toàn bộ Docker Engine, System Daemons và VM Root. Đã loại trừ các cgroup rỗng.",
+      "description": "Tỷ lệ sử dụng CPU theo phân cấp cgroups cAdvisor: Toàn bộ Docker Engine, System Daemons và VM Root.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -446,10 +260,10 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 6
+        "x": 0,
+        "y": 7
       },
-      "id": 6,
+      "id": 4,
       "options": {
         "legend": {
           "calcs": [
@@ -472,26 +286,14 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "label_replace(label_replace(label_replace(sum by (id) (rate(container_cpu_usage_seconds_total{id=~\"^/$\|^/docker$\|^/restricted$\"}[1m])), \"scope\", \"Docker Containers Total\", \"id\", \"/docker\"), \"scope\", \"WSL2 Docker VM (Root)\", \"id\", \"/\"), \"scope\", \"System Daemons\", \"id\", \"/restricted\")",
-          "legendFormat": "{{scope}} ({{id}})",
+          "expr": "label_replace(label_replace(label_replace(sum by (id) (rate(container_cpu_usage_seconds_total{id=~\"^/$|^/docker$|^/restricted$\"}[1m])), \"scope\", \"Docker Containers Total\", \"id\", \"/docker\"), \"scope\", \"WSL2 Docker VM (Root)\", \"id\", \"/\"), \"scope\", \"System Daemons\", \"id\", \"/restricted\")",
+          "legendFormat": "{{scope}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Engine & VM CPU Usage Over Time",
+      "title": "Container CPU Usage Over Time",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
-      "id": 102,
-      "title": "FastAPI Backend Metrics",
-      "type": "row"
     },
     {
       "datasource": {
@@ -524,11 +326,11 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 15
+        "w": 12,
+        "x": 12,
+        "y": 7
       },
-      "id": 7,
+      "id": 5,
       "options": {
         "legend": {
           "calcs": [
@@ -557,8 +359,20 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Request Rate by Route & Status",
+      "title": "FastAPI HTTP Request Rate & Status",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 101,
+      "title": "Backend Latency & In-Progress Requests",
+      "type": "row"
     },
     {
       "datasource": {
@@ -590,12 +404,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 15
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 16
       },
-      "id": 8,
+      "id": 6,
       "options": {
         "legend": {
           "calcs": [
@@ -657,12 +471,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 15
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 16
       },
-      "id": 9,
+      "id": 7,
       "options": {
         "legend": {
           "calcs": [
@@ -701,8 +515,8 @@
         "x": 0,
         "y": 23
       },
-      "id": 103,
-      "title": "Endpoint Health & Latency (Blackbox Exporter)",
+      "id": 102,
+      "title": "Endpoint Health & Probes (Blackbox Exporter)",
       "type": "row"
     },
     {
@@ -750,12 +564,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 0,
         "y": 24
       },
-      "id": 10,
+      "id": 8,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
@@ -817,12 +631,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 12,
         "y": 24
       },
-      "id": 11,
+      "id": 9,
       "options": {
         "legend": {
           "calcs": [
@@ -860,9 +674,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 31
       },
-      "id": 104,
+      "id": 103,
       "title": "Database & Nginx Metrics",
       "type": "row"
     },
@@ -895,12 +709,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 32
       },
-      "id": 12,
+      "id": 10,
       "options": {
         "legend": {
           "calcs": [
@@ -982,12 +796,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 32
       },
-      "id": 13,
+      "id": 11,
       "options": {
         "legend": {
           "calcs": [
@@ -1035,9 +849,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 39
       },
-      "id": 105,
+      "id": 104,
       "title": "System Logs (Loki & Alloy)",
       "type": "row"
     },
@@ -1051,9 +865,9 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 40
       },
-      "id": 14,
+      "id": 12,
       "options": {
         "dedupStrategy": "none",
         "enableLogDetails": true,
@@ -1108,6 +922,6 @@
   "timezone": "browser",
   "title": "Expense Tracker — System Monitoring Dashboard",
   "uid": "expense-tracker-system-overview",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
