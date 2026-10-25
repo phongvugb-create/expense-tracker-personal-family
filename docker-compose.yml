@@ -1,6 +1,4 @@
-# Docker Compose - Bộ khung cấu hình nền tảng (Skeleton)
-# Lưu ý: Các dịch vụ (PostgreSQL, Backend, Frontend, Nginx, Monitoring) 
-# sẽ được bổ sung và cấu hình tuần tự ở các giai đoạn tiếp theo.
+# Docker Compose - Cấu hình hạ tầng & Giám sát toàn diện (Expense Tracker)
 
 services:
   db:
@@ -69,10 +67,81 @@ services:
       - "--web.enable-lifecycle"
     ports:
       - "127.0.0.1:9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - app-network
     depends_on:
       - postgres-exporter
+
+  loki:
+    image: grafana/loki:3.1.0
+    container_name: expense_tracker_loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "127.0.0.1:3100:3100"
+    networks:
+      - app-network
+
+  alloy:
+    image: grafana/alloy:v1.2.0
+    container_name: expense_tracker_alloy
+    restart: unless-stopped
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "127.0.0.1:12345:12345"
+    networks:
+      - app-network
+    depends_on:
+      - loki
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.25.0
+    container_name: expense_tracker_blackbox_exporter
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/blackbox/blackbox.yml:/config/blackbox.yml:ro
+    command:
+      - "--config.file=/config/blackbox.yml"
+    ports:
+      - "127.0.0.1:9115:9115"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:1.27.0-alpine
+    container_name: expense_tracker_nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "127.0.0.1:8088:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - app-network
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.1.0
+    container_name: expense_tracker_nginx_exporter
+    restart: unless-stopped
+    command:
+      - -nginx.scrape-uri=http://nginx:80/stub_status
+    ports:
+      - "127.0.0.1:9113:9113"
+    networks:
+      - app-network
+    depends_on:
+      - nginx
 
   grafana:
     image: grafana/grafana:11.1.0
@@ -92,6 +161,7 @@ services:
       - app-network
     depends_on:
       - prometheus
+      - loki
 
 networks:
   app-network:
@@ -106,3 +176,5 @@ volumes:
     name: expense_tracker_prometheus_data
   grafana_data:
     name: expense_tracker_grafana_data
+  loki_data:
+    name: expense_tracker_loki_data

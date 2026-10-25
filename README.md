@@ -134,13 +134,13 @@ npm run lint
 
 ---
 
-## 7. Hệ Thống Giám Sát (Monitoring & Observability)
+## 7. Hệ Thống Giám Sát & Nhật Ký (Full Observability Stack)
 
-Dự án tích hợp sẵn hệ thống giám sát thời gian thực với **Prometheus**, **Grafana** và **PostgreSQL Exporter** chạy hoàn toàn trên Docker Compose:
+Dự án tích hợp đầy đủ 4 trụ cột giám sát thời gian thực với **Prometheus**, **Grafana**, **Loki**, **Grafana Alloy**, **Blackbox Exporter**, **PostgreSQL Exporter** và **Nginx Reverse Proxy** chạy hoàn toàn trên Docker Compose:
 
-### 7.1. Khởi động các dịch vụ giám sát
+### 7.1. Khởi động toàn bộ các dịch vụ giám sát & proxy
 ```powershell
-docker compose up -d postgres-exporter prometheus grafana
+docker compose up -d db pgadmin postgres-exporter prometheus loki alloy blackbox-exporter nginx nginx-exporter grafana
 ```
 
 Kiểm tra trạng thái các container:
@@ -148,29 +148,32 @@ Kiểm tra trạng thái các container:
 docker compose ps
 ```
 
-### 7.2. Truy cập & Thông tin đăng nhập
-* **Prometheus Web UI**: `http://127.0.0.1:9090`
-  * Kiểm tra targets đang cào dữ liệu: `http://127.0.0.1:9090/targets` (cả `prometheus` và `postgres-exporter` ở trạng thái **UP**).
+### 7.2. Danh sách dịch vụ & Cổng truy cập (Host Ports)
 * **Grafana Dashboard**: `http://127.0.0.1:3000`
-  * **Tài khoản mặc định**: `admin`
-  * **Mật khẩu**: Lấy từ biến môi trường `GRAFANA_ADMIN_PASSWORD` trong file `.env` (mặc định mẫu: `example_grafana_password_replace_in_env`).
-  * **Datasource tự động (Provisioned)**: Prometheus (`http://prometheus:9090`).
-  * **Dashboard dựng sẵn**: *Expense Tracker — PostgreSQL & System Metrics* (UID: `expense-tracker-db-metrics`), bao gồm:
-    * Trạng thái kết nối PostgreSQL (`pg_up`).
-    * Số lượng kết nối hoạt động và phân bổ theo trạng thái (`pg_stat_activity_count`).
-    * Tốc độ giao dịch Commit / Rollback (`pg_stat_database_xact_commit`, `pg_stat_database_xact_rollback`).
-    * Dung lượng database `expense_tracker` theo thời gian (`pg_database_size_bytes`).
-    * Thời gian hoạt động liên tục (Uptime) của PostgreSQL Server.
-* **pgAdmin 4**: `http://127.0.0.1:5050`
-  * Đăng nhập với `PGADMIN_DEFAULT_EMAIL` và `PGADMIN_DEFAULT_PASSWORD` từ `.env`.
+  * **Tài khoản**: `admin` / Mật khẩu lấy từ `GRAFANA_ADMIN_PASSWORD` trong `.env`.
+  * **Datasources (Provisioned)**: Prometheus (`http://prometheus:9090`) và Loki (`http://loki:3100`).
+  * **Dashboard dựng sẵn**: *Expense Tracker — PostgreSQL, Backend, Nginx & Loki Metrics* (UID: `expense-tracker-db-metrics`).
+* **Prometheus Web UI**: `http://127.0.0.1:9090`
+  * Kiểm tra targets cào số liệu tại: `http://127.0.0.1:9090/targets` (tất cả targets đều `UP`).
+* **Grafana Loki (Log Ingestion & Query)**: `http://127.0.0.1:3100` (Kiểm tra ready: `http://127.0.0.1:3100/ready`).
+* **Grafana Alloy (Log Collector UI)**: `http://127.0.0.1:12345` (Thu thập stdout/stderr Docker container qua Docker socket và chuyển tiếp về Loki).
+* **Blackbox Exporter (Health & Probe)**: `http://127.0.0.1:9115` (Kiểm tra HTTP availability của `/health/live`, `/health/ready` và `/health`).
+* **Nginx Reverse Proxy**: `http://127.0.0.1:8088` (Proxy `/api/` tới FastAPI Backend và mở `/stub_status` nội bộ cho exporter).
+* **Nginx Prometheus Exporter**: `http://127.0.0.1:9113/metrics`.
+* **PostgreSQL Exporter**: Cổng nội bộ container `9187` kết nối `db:5432`.
+* **pgAdmin 4**: `http://127.0.0.1:5050`.
 
 ### 7.3. Xử lý sự cố thường gặp (Troubleshooting)
-1. **Target `postgres-exporter` hiển thị DOWN trong Prometheus**:
-   * Kiểm tra container PostgreSQL có đang chạy và healthy không: `docker compose ps db`.
-   * Kiểm tra log của exporter: `docker compose logs postgres-exporter --tail 50`.
-   * Đảm bảo chuỗi kết nối sử dụng hostname nội bộ `db:5432`, không dùng `localhost` hay IP host.
-2. **Grafana không hiển thị biểu đồ hoặc báo lỗi kết nối datasource**:
-   * Kiểm tra mạng Docker `app-network` có thông suốt giữa Grafana và Prometheus không.
-   * Kiểm tra log Grafana: `docker compose logs grafana --tail 50`.
-   * Thử test query trực tiếp trên Prometheus: `http://127.0.0.1:9090/graph?g0.expr=pg_up`.
+1. **Target `backend` hiển thị DOWN trong Prometheus**:
+   * Kiểm tra xem Backend FastAPI đã được khởi động chưa:
+     ```powershell
+     & "backend\.venv\Scripts\python.exe" -m uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port 8001
+     ```
+   * Lưu ý sử dụng `--host 0.0.0.0` để container Docker có thể kết nối thông qua `host.docker.internal:8001`.
+2. **Loki báo 503 Ingester not ready khi vừa khởi động**:
+   * Loki cấu hình single-binary cần khoảng 15 giây sau khi bật để hoàn tất vòng khởi tạo in-memory ring. Sau 15 giây, endpoint `http://127.0.0.1:3100/ready` sẽ trả về `200 ready`.
+3. **Blackbox Exporter báo `probe_success = 0` cho host.docker.internal**:
+   * Cấu hình trong `monitoring/blackbox/blackbox.yml` đã được tối ưu hóa `preferred_ip_protocol: "ip4"` để tương thích hoàn hảo với gateway Docker Desktop trên Windows.
+4. **Cổng 8080 bị chiếm dụng bởi service khác**:
+   * Cổng host của Nginx được cấu hình sang `127.0.0.1:8088:80` để tuyệt đối không xung đột với cổng `8080` hay cổng `8000` của các ứng dụng khác.
 

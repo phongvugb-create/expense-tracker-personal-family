@@ -13,7 +13,7 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "liveNow": false,
@@ -27,15 +27,15 @@
         "y": 0
       },
       "id": 100,
-      "title": "Trạng Thái Hệ Thống & Tổng Quan PostgreSQL",
+      "title": "Trạng Thái Khả Dụng & Health Probes (Blackbox Exporter & Exporters)",
       "type": "row"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
-      "description": "Trạng thái kết nối của PostgreSQL Exporter tới cơ sở dữ liệu PostgreSQL (1 = UP, 0 = DOWN)",
+      "description": "PostgreSQL Exporter connection to database (1 = UP, 0 = DOWN)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -76,7 +76,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 4,
         "x": 0,
         "y": 1
       },
@@ -95,12 +95,11 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
           "expr": "pg_up",
@@ -109,52 +108,63 @@
           "refId": "A"
         }
       ],
-      "title": "PostgreSQL Status (pg_up)",
+      "title": "PostgreSQL (pg_up)",
       "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
-      "description": "Tổng số kết nối client hiện đang hoạt động tới PostgreSQL",
+      "description": "Nginx Exporter status (1 = UP, 0 = DOWN)",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
-                "color": "yellow",
-                "value": 50
-              },
-              {
-                "color": "red",
-                "value": 80
+                "color": "green",
+                "value": 1
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": []
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 6,
+        "w": 4,
+        "x": 4,
         "y": 1
       },
       "id": 2,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
+        "colorMode": "background",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
@@ -166,57 +176,75 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(pg_stat_activity_count)",
+          "expr": "nginx_up",
           "instant": true,
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Active Connections",
+      "title": "Nginx (nginx_up)",
       "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
-      "description": "Dung lượng lưu trữ của database expense_tracker",
+      "description": "Backend Scrape Target Status in Prometheus (1 = UP, 0 = DOWN)",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "red",
                 "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
               }
             ]
-          },
-          "unit": "bytes"
+          }
         },
         "overrides": []
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 12,
+        "w": 4,
+        "x": 8,
         "y": 1
       },
       "id": 3,
       "options": {
-        "colorMode": "value",
+        "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -229,60 +257,78 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "pg_database_size_bytes{datname=\"expense_tracker\"}",
+          "expr": "up{job=\"backend\"}",
           "instant": true,
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Expense Tracker DB Size",
+      "title": "FastAPI Backend (up)",
       "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
-      "description": "Thời gian hoạt động liên tục (Uptime) của PostgreSQL Server",
+      "description": "Blackbox probe success across all probed endpoints",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "FAILED"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "SUCCESS"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
               }
             ]
-          },
-          "unit": "s"
+          }
         },
         "overrides": []
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 12,
+        "x": 12,
         "y": 1
       },
       "id": 4,
       "options": {
-        "colorMode": "value",
+        "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "auto",
-        "orientation": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -292,21 +338,21 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "time() - pg_postmaster_start_time_seconds",
+          "expr": "probe_success",
+          "legendFormat": "{{instance}}",
           "instant": true,
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "PostgreSQL Uptime",
+      "title": "HTTP Probes (Blackbox probe_success)",
       "type": "stat"
     },
     {
@@ -318,15 +364,15 @@
         "y": 5
       },
       "id": 101,
-      "title": "Hiệu Suất Giao Dịch & Hoạt Động (Transactions & Activity)",
+      "title": "Backend HTTP Metrics (FastAPI /metrics)",
       "type": "row"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
-      "description": "Tần suất giao dịch commit thành công trên mỗi giây theo database",
+      "description": "Total HTTP Requests per handler and status",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -335,44 +381,18 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "commits/giây",
+            "axisLabel": "req/s",
             "axisPlacement": "auto",
-            "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 15,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
             "lineInterpolation": "smooth",
             "lineWidth": 2,
-            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "showPoints": "never"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "ops"
+          "unit": "reqps"
         },
         "overrides": []
       },
@@ -402,24 +422,24 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(pg_stat_database_xact_commit{datname=~\"expense_tracker|postgres\"}[1m])",
-          "legendFormat": "{{datname}} commits/s",
+          "expr": "sum by (handler, status) (rate(http_requests_total[1m]))",
+          "legendFormat": "{{handler}} [{{status}}]",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Transaction Commit Rate",
+      "title": "FastAPI HTTP Request Rate",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
-      "description": "Tần suất giao dịch rollback trên mỗi giây",
+      "description": "Probe duration latency for HTTP endpoints",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -428,48 +448,18 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "rollbacks/giây",
+            "axisLabel": "thời gian phản hồi",
             "axisPlacement": "auto",
-            "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 15,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
             "lineInterpolation": "smooth",
             "lineWidth": 2,
-            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "showPoints": "never"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "ops"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -483,7 +473,7 @@
       "options": {
         "legend": {
           "calcs": [
-            "mean",
+            "lastNotNull",
             "max"
           ],
           "displayMode": "table",
@@ -499,16 +489,16 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(pg_stat_database_xact_rollback{datname=~\"expense_tracker|postgres\"}[1m])",
-          "legendFormat": "{{datname}} rollbacks/s",
+          "expr": "probe_duration_seconds",
+          "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Transaction Rollback Rate",
+      "title": "Endpoint Probe Latency (Blackbox probe_duration_seconds)",
       "type": "timeseries"
     },
     {
@@ -520,15 +510,15 @@
         "y": 14
       },
       "id": 102,
-      "title": "Dung Lượng Database & Số Lượng Kết Nối Theo Trạng Thái",
+      "title": "Nginx & Database Metrics",
       "type": "row"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
-      "description": "Số lượng kết nối phân bổ theo trạng thái (active, idle, idle in transaction...)",
+      "description": "Nginx Active Connections & Handled Requests Rate",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -537,42 +527,15 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "kết nối",
             "axisPlacement": "auto",
-            "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
+            "fillOpacity": 15,
             "lineInterpolation": "linear",
             "lineWidth": 2,
-            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
+            "showPoints": "never"
           },
           "unit": "short"
         },
@@ -603,24 +566,35 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "pg_stat_activity_count",
-          "legendFormat": "{{state}} ({{datname}})",
+          "expr": "nginx_connections_active",
+          "legendFormat": "Active Connections",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "rate(nginx_http_requests_total[1m])",
+          "legendFormat": "Requests / sec",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Connections by State",
+      "title": "Nginx Activity (Connections & Req Rate)",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "Prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
-      "description": "Kích thước các cơ sở dữ liệu trên PostgreSQL instance",
+      "description": "PostgreSQL Active Connections and DB Size",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -629,44 +603,17 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "dung lượng",
             "axisPlacement": "auto",
-            "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 15,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "smooth",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "showPoints": "never"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "bytes"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -695,17 +642,77 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "Prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "pg_database_size_bytes",
-          "legendFormat": "{{datname}}",
+          "expr": "sum(pg_stat_activity_count)",
+          "legendFormat": "PostgreSQL Active Connections",
           "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "rate(pg_stat_database_xact_commit{datname=\"expense_tracker\"}[1m])",
+          "legendFormat": "expense_tracker commits/s",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "PostgreSQL Connections & Commit Rate",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 103,
+      "title": "Nhật Ký Hệ Thống (Grafana Loki & Alloy Logs)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-datasource"
+      },
+      "description": "Dòng nhật ký thời gian thực thu thập từ các container bởi Grafana Alloy chuyển tiếp về Loki",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 9,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-datasource"
+          },
+          "editorMode": "code",
+          "expr": "{environment=\"development\"}",
+          "queryType": "range",
           "refId": "A"
         }
       ],
-      "title": "Database Size Trends",
-      "type": "timeseries"
+      "title": "Expense Tracker Container Logs (Loki)",
+      "type": "logs"
     }
   ],
   "refresh": "10s",
@@ -714,13 +721,16 @@
   "tags": [
     "expense-tracker",
     "postgresql",
+    "fastapi",
+    "nginx",
+    "loki",
     "monitoring"
   ],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {
@@ -733,8 +743,8 @@
     ]
   },
   "timezone": "browser",
-  "title": "Expense Tracker — PostgreSQL & System Metrics",
+  "title": "Expense Tracker — PostgreSQL, Backend, Nginx & Loki Metrics",
   "uid": "expense-tracker-db-metrics",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
