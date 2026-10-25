@@ -158,6 +158,18 @@ services:
     networks:
       - app-network
 
+  docker-stats-exporter:
+    build:
+      context: ./monitoring/docker-exporter
+    container_name: expense_tracker_docker_stats_exporter
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "127.0.0.1:9417:9417"
+    networks:
+      - app-network
+
   grafana:
     image: grafana/grafana:11.1.0
     container_name: expense_tracker_grafana

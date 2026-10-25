@@ -23,7 +23,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Số lượng dịch vụ/targets đang được giám sát thời gian thực ở trạng thái UP trong Prometheus",
+      "description": "Số lượng Prometheus scrape targets đang hoạt động (UP). Đây là các tiến trình/endpoint giám sát, không phải tổng số container.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -77,7 +77,7 @@
           "refId": "A"
         }
       ],
-      "title": "Active Targets (Prometheus UP)",
+      "title": "Prometheus Targets đang UP",
       "type": "stat"
     },
     {
@@ -166,7 +166,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Dung lượng RAM thực tế sử dụng (Working Set) theo cgroup phân cấp cAdvisor: Toàn bộ Docker Engine (/docker), Hệ thống Desktop (/restricted) và WSL2 Host Root (/).",
+      "description": "Dung lượng RAM thực tế đo theo từng container Expense Tracker (qua Docker Engine API) và các cgroup tổng hợp WSL2.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -219,13 +219,24 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "label_replace(label_replace(label_replace(container_memory_working_set_bytes{id=~\"^/$|^/docker$|^/restricted$\"}, \"scope\", \"Docker Containers Total\", \"id\", \"/docker\"), \"scope\", \"WSL2 Docker VM (Root)\", \"id\", \"/\"), \"scope\", \"System Daemons\", \"id\", \"/restricted\")",
-          "legendFormat": "{{scope}}",
+          "expr": "docker_container_memory_bytes{container=~\"expense_tracker_.*\"}",
+          "legendFormat": "{{container}}",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(label_replace(label_replace(container_memory_working_set_bytes{id=~\"^/$|^/docker$|^/restricted$\"}, \"scope\", \"Cgroup Tổng hợp: Docker Engine (/docker)\", \"id\", \"/docker\"), \"scope\", \"Cgroup Tổng hợp: WSL2 VM Host Root (/)\", \"id\", \"/\"), \"scope\", \"Cgroup Tổng hợp: System Daemons (/restricted)\", \"id\", \"/restricted\")",
+          "legendFormat": "{{scope}}",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Container RAM Usage (Working Set)",
+      "title": "Expense Tracker Containers RAM Usage (Real & Cgroups)",
       "type": "timeseries"
     },
     {
@@ -233,7 +244,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Tỷ lệ sử dụng CPU theo phân cấp cgroups cAdvisor: Toàn bộ Docker Engine, System Daemons và VM Root.",
+      "description": "Tỷ lệ sử dụng CPU thực tế theo từng container Expense Tracker (qua Docker Engine API) và các cgroup tổng hợp WSL2.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -253,7 +264,7 @@
             },
             "showPoints": "never"
           },
-          "unit": "percentunit"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -286,13 +297,24 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "label_replace(label_replace(label_replace(sum by (id) (rate(container_cpu_usage_seconds_total{id=~\"^/$|^/docker$|^/restricted$\"}[1m])), \"scope\", \"Docker Containers Total\", \"id\", \"/docker\"), \"scope\", \"WSL2 Docker VM (Root)\", \"id\", \"/\"), \"scope\", \"System Daemons\", \"id\", \"/restricted\")",
-          "legendFormat": "{{scope}}",
+          "expr": "docker_container_cpu_percent{container=~\"expense_tracker_.*\"}",
+          "legendFormat": "{{container}}",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(label_replace(label_replace(sum by (id) (rate(container_cpu_usage_seconds_total{id=~\"^/$|^/docker$|^/restricted$\"}[1m])) * 100, \"scope\", \"Cgroup Tổng hợp: Docker Engine (/docker)\", \"id\", \"/docker\"), \"scope\", \"Cgroup Tổng hợp: WSL2 VM Host Root (/)\", \"id\", \"/\"), \"scope\", \"Cgroup Tổng hợp: System Daemons (/restricted)\", \"id\", \"/restricted\")",
+          "legendFormat": "{{scope}}",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Container CPU Usage Over Time",
+      "title": "Expense Tracker Containers CPU Usage % (Real & Cgroups)",
       "type": "timeseries"
     },
     {
@@ -300,7 +322,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "Tần suất HTTP Request theo route/handler và HTTP status code",
+      "description": "Tần suất HTTP Request phân biệt giữa lưu lượng Health Probe tự động (/health/live, /health/ready) và các Request nghiệp vụ thực tế (/api/v1/...)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -353,13 +375,24 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (handler, status) (rate(http_requests_total[1m]))",
-          "legendFormat": "{{handler}} [{{status}}]",
+          "expr": "sum by (handler, status) (rate(http_requests_total{handler!~\"^/health.*\"}[1m]))",
+          "legendFormat": "[API Nghiệp vụ] {{handler}} [{{status}}]",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum by (handler, status) (rate(http_requests_total{handler=~\"^/health.*\"}[1m]))",
+          "legendFormat": "[Health Probe] {{handler}} [{{status}}]",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "FastAPI HTTP Request Rate & Status",
+      "title": "FastAPI Request Rate: Business Traffic vs Health Probes",
       "type": "timeseries"
     },
     {
